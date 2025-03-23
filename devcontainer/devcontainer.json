@@ -1,0 +1,19 @@
+{
+	"name": "Jupyter Notebook開発環境",
+	"dockerComposeFile": "docker-compose.yaml",
+  "service": "jupyternotebook",
+  "workspaceFolder": "/home/jovyan/work", 
+	"customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "ms-toolsai.jupyter"
+      ],
+      "settings": {
+        "jupyter.notebookFileRoot": "${workspaceFolder}"
+      }
+    }
+	},
+    "forwardPorts": [8888],
+    "postAttachCommand": "echo 'JupyterLab URL: http://localhost:8888'"
+}

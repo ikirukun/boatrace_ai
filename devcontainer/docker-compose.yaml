@@ -1,0 +1,56 @@
+# Docker のバージョン
+version: '3.8'
+# Dockerのコンテナの情報(なんでもいい)
+services:
+  jupyternotebook:
+    restart: always
+    build:
+      context: .  # カレントディレクトリ（devcontainer）を指定
+      dockerfile: Dockerfile
+    # コンテナの名前
+    container_name: 'boatrace_ai'
+    # 仮想環境に入ったあとの作業ディレクトリ名
+    working_dir: '/home/jovyan/work'
+    tty: true
+    # ローカルに存在するディレクトリ(./work)とコンテナ内のディレクトリ(/root/work)を同期させるための設定
+    volumes:
+      - ~/Desktop/boatrace_ai/work:/home/jovyan/work
+    ports:
+      - "8888:8888"
+    depends_on:  # jupyternotebook が db サービスに依存することを指定
+      - db
+
+  db:  # MySQL サービスを追加
+    image: mysql:8.0  # 公式の MySQL イメージを使用 (バージョンは必要に応じて変更)
+    container_name: 'boatrace_db'
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: your_root_password  # root パスワードを設定 (必須)
+      MYSQL_DATABASE: boatrace_db  # 作成するデータベース名 (必要に応じて変更)
+      MYSQL_USER: boatrace_user  # 作成するユーザー名 (必要に応じて変更)
+      MYSQL_PASSWORD: your_password  # ユーザーのパスワード (必要に応じて変更)
+    ports:
+      - "3306:3306"  # ホストの 3306 ポートをコンテナの 3306 ポートにマッピング (必要に応じて変更)
+    volumes:
+      - db_data:/var/lib/mysql  # データの永続化 (名前付きボリュームを使用)
+      - ./init.sql:/docker-entrypoint-initdb.d/  # 初期化スクリプトを配置 (オプション)
+
+  web:  # Flask app
+    build:
+      context: .  # カレントディレクトリ（devcontainer）を指定
+      dockerfile: Dockerfile
+    container_name: 'boatrace_web'
+    ports:
+      - "5001:5000"
+    volumes:
+      - ~/Desktop/boatrace_ai/work:/home/jovyan/work # boatrace_ai/work をマウント
+    depends_on:
+      - db
+    environment:
+      - FLASK_APP=flaskr
+      - FLASK_RUN_HOST=0.0.0.0
+      - PYTHONPATH=/home/jovyan/work  # workディレクトリをPYTHONPATHに追加
+    command: flask run --host=0.0.0.0
+
+volumes:  # 名前付きボリュームを定義
+  db_data:

@@ -1,0 +1,12 @@
+pandas
+numpy
+matplotlib
+japanize-matplotlib
+seaborn
+scikit-learn
+lhafile
+polars
+lightgbm
+Flask
+SQLAlchemy
+mysql-connector-python
