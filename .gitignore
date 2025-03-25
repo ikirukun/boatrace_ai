@@ -1,0 +1,4 @@
+work/**/*.csv
+work/**/*.lzh
+work/**/*.txt
+**/.DS_Store
